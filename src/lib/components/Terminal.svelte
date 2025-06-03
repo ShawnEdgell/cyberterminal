@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { currentUser, hackerScreenState } from '$lib/stores';
 	import { processUserCommand, getCommandEchoLine } from '$lib/commands/index';
-	import type { OutputLine } from '$lib/types'; // FIX: Import OutputLine directly from $lib/types
+	import type { OutputLine } from '$lib/types'; // FIX: Corrected import path for OutputLine
 	import OutputLineDisplay from './OutputLine.svelte';
 	import {
 		getRandomInt,
@@ -214,6 +214,8 @@
 	}
 </script>
 
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
 	class="flex h-screen flex-col p-4"
 	role="application"
@@ -229,24 +231,27 @@
 		{#each displayedLines as line (line.id)}
 			<OutputLineDisplay {line} />
 		{/each}
-	</div>
 
-	<div class="input-prompt mt-2 flex flex-row items-center">
-		<span class="text-theme-prompt whitespace-nowrap">{$currentUser}&gt;&nbsp;</span>
-		<input
-			type="text"
-			bind:this={commandInputElement}
-			bind:value={currentInput}
-			on:keydown={handleInputKeydown}
-			class="text-theme-text flex-grow border-none bg-transparent pl-1 outline-none"
-			autocomplete="off"
-			spellcheck="false"
-		/>
+		<div class="input-prompt flex items-center">
+			<span class="text-theme-prompt whitespace-nowrap">{$currentUser}&gt;&nbsp;</span>
+			<input
+				type="text"
+				bind:this={commandInputElement}
+				bind:value={currentInput}
+				on:keydown={handleInputKeydown}
+				class="text-theme-text flex-grow border-none bg-transparent pl-1 outline-none"
+				autocomplete="off"
+				spellcheck="false"
+			/>
+		</div>
 	</div>
 </div>
 
 <style>
 	.input-prompt input:focus {
 		caret-color: currentColor;
+	}
+	.input-prompt {
+		padding-top: 0.5rem;
 	}
 </style>
