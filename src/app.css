@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/* Default Theme */
+@theme {
+	--color-theme-bg: #000000;
+	--color-theme-text: #00ff00; /* Main text color - bright green (default) */
+	--color-theme-prompt: #00ff00; /* User prompt (e.g., GUEST>) - bright green */
+	--color-theme-command: #00d000; /* Echoed commands, subtle highlights - slightly darker green */
+	--color-theme-error: #ff4136; /* Error messages - red */
+	--color-theme-accent: #fca311; /* Highlight, API responses, headers - orange/yellow */
+	--color-theme-scrollbar-thumb: #00ff00;
+	--color-theme-scrollbar-track: #1a1a1a;
+	--color-theme-alt-text: #ffffff; /* NEW: Alternative text color - pure white */
+
+	--font-mono: 'Consolas', 'Lucida Console', 'Courier New', monospace;
+}
+
+/* Error Theme Overrides */
+body.theme-error {
+	--color-theme-bg: #330000;
+	--color-theme-text: #ff4136; /* Error theme main text becomes red */
+	--color-theme-prompt: #ff4136;
+	--color-theme-command: #cc3333;
+	--color-theme-error: #ffffff; /* Error messages on error theme become white */
+	--color-theme-accent: #fca311;
+	--color-theme-scrollbar-thumb: #ff4136;
+	--color-theme-scrollbar-track: #1a0000;
+	--color-theme-alt-text: #cccccc; /* NEW: Alt text in error theme - light grey */
+}
+
+/* Base styles for the entire terminal */
+html,
+body {
+	height: 100%;
+	margin: 0;
+	background-color: var(--color-theme-bg);
+	color: var(--color-theme-text); /* Applies the main text color */
+	font-family: theme('fontFamily.mono');
+	font-size: 16px;
+	line-height: 1.4;
+	overflow: hidden;
+}
+
+/* Specific classes for different text types in the terminal */
+.text-theme-prompt {
+	color: var(--color-theme-prompt);
+}
+
+.text-theme-command {
+	color: var(--color-theme-command);
+}
+
+.text-theme-error {
+	color: var(--color-theme-error);
+}
+
+.text-theme-accent {
+	color: var(--color-theme-accent);
+}
+
+.text-theme-alt-text {
+	/* NEW CLASS DEFINITION */
+	color: var(--color-theme-alt-text);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+	width: 8px;
+}
+::-webkit-scrollbar-track {
+	background-color: var(--color-theme-scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+	background-color: var(--color-theme-scrollbar-thumb);
+	border-radius: 4px;
+}
