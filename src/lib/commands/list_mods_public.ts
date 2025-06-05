@@ -9,7 +9,7 @@ const listModsPublicCommand: Command = {
 	description: 'List Public SkaterXL mods.',
 	execute: async () => {
 		const lines = [];
-		const modListId = '1228';
+		const modListId = '12104';
 		const listName = 'Public';
 		lines.push(createOutputLine(`Fetching ${listName} mods...`));
 
@@ -18,51 +18,80 @@ const listModsPublicCommand: Command = {
 		if (apiResult && Array.isArray(apiResult) && apiResult.length > 0) {
 			lines.push(
 				createOutputLine(
-					`<span class="${API_RESPONSE_CLASS}">--- Found ${apiResult.length} ${listName} Mods ---</span>`
+					`<span class="${API_RESPONSE_CLASS}">--- Found ${apiResult.length} ${listName} Mods ---</span>`,
+					false,
+					false,
+					true
 				)
 			);
 			apiResult.forEach((mod: ModItem, index: number) => {
 				lines.push(
-					createOutputLine(`<span class="${API_RESPONSE_CLASS}">Mod ${index + 1}:</span>`)
-				);
-				lines.push(
 					createOutputLine(
-						`  <span class="${API_RESPONSE_CLASS}">Title:</span> ${escapeHtml(mod.title)}`
+						`<span class="${API_RESPONSE_CLASS}">Mod ${index + 1}:</span>`,
+						false,
+						false,
+						true
 					)
 				);
 				lines.push(
 					createOutputLine(
-						`  <span class="${API_RESPONSE_CLASS}">Author:</span> ${escapeHtml(mod.author)}`
+						`  <span class="${API_RESPONSE_CLASS}">Title:</span> ${escapeHtml(mod.title)}`,
+						false,
+						false,
+						true
 					)
 				);
 				lines.push(
 					createOutputLine(
-						`  <span class="${API_RESPONSE_CLASS}">Version:</span> ${escapeHtml(mod.workingVersion)}`
+						`  <span class="${API_RESPONSE_CLASS}">Author:</span> ${escapeHtml(mod.author)}`,
+						false,
+						false,
+						true
+					)
+				);
+				lines.push(
+					createOutputLine(
+						`  <span class="${API_RESPONSE_CLASS}">Version:</span> ${escapeHtml(mod.workingVersion)}`,
+						false,
+						false,
+						true
 					)
 				);
 				if (mod.keybind && mod.keybind !== 'None') {
 					lines.push(
 						createOutputLine(
-							`  <span class="${API_RESPONSE_CLASS}">Keybind:</span> ${escapeHtml(mod.keybind)}`
+							`  <span class="${API_RESPONSE_CLASS}">Keybind:</span> ${escapeHtml(mod.keybind)}`,
+							false,
+							false,
+							true
 						)
 					);
 				}
 				if (mod.features && mod.features.length > 0) {
 					lines.push(
 						createOutputLine(
-							`  <span class="${API_RESPONSE_CLASS}">Features:</span> ${mod.features.map((f: string) => escapeHtml(f)).join(', ')}`
+							`  <span class="${API_RESPONSE_CLASS}">Features:</span> ${mod.features.map((f: string) => escapeHtml(f)).join(', ')}`,
+							false,
+							false,
+							true
 						)
 					);
 				}
 				lines.push(
 					createOutputLine(
-						`  <span class="${API_RESPONSE_CLASS}">Note:</span> ${escapeHtml(mod.note)}`
+						`  <span class="${API_RESPONSE_CLASS}">Note:</span> ${escapeHtml(mod.note)}`,
+						false,
+						false,
+						true
 					)
 				);
 				if (mod.downloadLinks && mod.downloadLinks.length > 0) {
 					lines.push(
 						createOutputLine(
-							`  <span class="${API_RESPONSE_CLASS}">Downloads:</span> ${mod.downloadLinks.map((link: { url: string; label: string }) => `<a href="${escapeHtml(link.url)}" target="_blank" class="underline">${escapeHtml(link.label)}</a>`).join(', ')}`
+							`  <span class="${API_RESPONSE_CLASS}">Downloads:</span> ${mod.downloadLinks.map((link: { url: string; label: string }) => `<a href="${escapeHtml(link.url)}" target="_blank" class="underline">${escapeHtml(link.label)}</a>`).join(', ')}`,
+							false,
+							false,
+							true
 						)
 					);
 				}
@@ -70,7 +99,10 @@ const listModsPublicCommand: Command = {
 			});
 			lines.push(
 				createOutputLine(
-					`<span class="${API_RESPONSE_CLASS}">--- End of ${listName} List ---</span>`
+					`<span class="${API_RESPONSE_CLASS}">--- End of ${listName} List ---</span>`,
+					false,
+					false,
+					true
 				)
 			);
 		} else if (apiResult && Array.isArray(apiResult) && apiResult.length === 0) {

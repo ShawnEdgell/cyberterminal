@@ -6,13 +6,13 @@ export async function fetchModsList(modListId: string): Promise<ApiResponse | nu
 	try {
 		const response = await fetch(`${API_BASE_URL}${modListId}`);
 		if (!response.ok) {
-			console.error(`API Error: ${response.status} ${response.statusText}`);
+			console.error(`API Error for ${modListId}: ${response.status} ${response.statusText}`);
 			return null;
 		}
 		const data: ApiResponse = await response.json();
 		return data;
 	} catch (error) {
-		console.error('Failed to fetch mod data:', error);
+		console.error(`Failed to fetch mod data for ${modListId}:`, error);
 		return null;
 	}
 }
