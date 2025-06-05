@@ -112,7 +112,16 @@
 		}
 
 		if (result.navigationPath && typeof result.navigationPath === 'string') {
-			setTimeout(() => goto(result.navigationPath as string), 300);
+			setTimeout(() => {
+				if (
+					(result.navigationPath as string).startsWith('http://') ||
+					(result.navigationPath as string).startsWith('https://')
+				) {
+					window.location.href = result.navigationPath as string;
+				} else {
+					goto(result.navigationPath as string);
+				}
+			}, 300);
 		}
 
 		if (commandToProcess !== commandHistory[commandHistory.length - 1]) {
