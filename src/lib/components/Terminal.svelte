@@ -3,16 +3,9 @@
 	import { goto } from '$app/navigation';
 	import { currentUser, hackerScreenState } from '$lib/stores';
 	import { processUserCommand, getCommandEchoLine } from '$lib/commands/index';
-	import type { OutputLine } from '$lib/types'; // FIX: Corrected import path for OutputLine
+	import type { OutputLine } from '$lib/types';
 	import OutputLineDisplay from './OutputLine.svelte';
-	import {
-		getRandomInt,
-		generateRandomHex,
-		generateRandomIP,
-		generateRandomFilePath,
-		generateRandomLogLine,
-		generateRandomString
-	} from '$lib/utils';
+	import HackerScreen from './HackerScreen.svelte';
 
 	export let initialOutputLines: OutputLine[] = [];
 
@@ -23,9 +16,6 @@
 	let currentInput: string = '';
 	let commandHistory: string[] = [];
 	let historyPointer: number = -1;
-
-	let hackerScreenInterval: number | null = null;
-	let hackerScreenTimeout: number | null = null;
 
 	const getWelcomeMessageLines = (): OutputLine[] => [
 		{ id: -1, html: `Welcome to CyberTerminal. Logged in as: ${$currentUser}` },
@@ -43,48 +33,8 @@
 	});
 
 	onDestroy(() => {
-		if (hackerScreenInterval) clearInterval(hackerScreenInterval);
-		if (hackerScreenTimeout) clearTimeout(hackerScreenTimeout);
 		hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
 	});
-
-	$: {
-		if ($hackerScreenState.active) {
-			if (hackerScreenInterval) clearInterval(hackerScreenInterval);
-			if (hackerScreenTimeout) clearTimeout(hackerScreenTimeout);
-
-			hackerScreenInterval = window.setInterval(() => {
-				addOutputLine(generateRandomHackerLine());
-			}, $hackerScreenState.intervalMs);
-
-			hackerScreenTimeout = window.setTimeout(() => {
-				if (hackerScreenInterval) clearInterval(hackerScreenInterval);
-				hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
-				addOutputLine({ id: Date.now(), html: 'Hacker screen simulation ended.', isError: false });
-			}, $hackerScreenState.durationMs);
-		} else {
-			if (hackerScreenInterval) clearInterval(hackerScreenInterval);
-			if (hackerScreenTimeout) clearTimeout(hackerScreenTimeout);
-			hackerScreenInterval = null;
-			hackerScreenTimeout = null;
-		}
-	}
-
-	function generateRandomHackerLine(): OutputLine {
-		const lineTypes = [
-			() => `[${generateRandomHex(8)}] ${generateRandomLogLine()}`,
-			() => `0x${generateRandomHex(16)} ${generateRandomHex(16)} ${generateRandomHex(16)}`,
-			() => `Connecting to ${generateRandomIP()}...`,
-			() => `Downloading ${generateRandomFilePath()}... ${getRandomInt(1, 100)}%`,
-			() => `Compiling ${generateRandomString(getRandomInt(5, 15))}.c...`,
-			() => `Scanning port ${getRandomInt(1, 65535)} on ${generateRandomIP()}`,
-			() =>
-				`[${generateRandomHex(4)}] ACCESS ${Math.random() > 0.5 ? 'GRANTED' : 'DENIED'} - ${generateRandomString(getRandomInt(10, 20))}`,
-			() => `DATA: ${generateRandomHex(32)}`
-		];
-		const randomType = lineTypes[getRandomInt(0, lineTypes.length - 1)];
-		return { id: Date.now(), html: randomType(), isError: Math.random() < 0.1 };
-	}
 
 	function addOutputLine(line: OutputLine) {
 		displayedLines = [...displayedLines, line];
@@ -99,7 +49,10 @@
 	async function scrollToBottom() {
 		await tick();
 		if (outputContainerElement) {
-			outputContainerElement.scrollTop = outputContainerElement.scrollHeight;
+			// Ensure the DOM has rendered before scrolling to the bottom
+			setTimeout(() => {
+				outputContainerElement.scrollTop = outputContainerElement.scrollHeight;
+			}, 0);
 		}
 	}
 
@@ -107,8 +60,11 @@
 		const commandToProcess = currentInput.trim();
 		if (commandToProcess === '') return;
 
-		if (commandToProcess.toLowerCase() !== 'stop_hack') {
+		const lowerCaseCommand = commandToProcess.toLowerCase();
+
+		if (lowerCaseCommand !== 'stop_hack' && lowerCaseCommand !== 'clear') {
 			if ($hackerScreenState.active) {
+				console.log('[Terminal] Stopping hacker screen due to new command.');
 				hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
 				addOutputLine({
 					id: Date.now(),
@@ -118,7 +74,8 @@
 			}
 		}
 
-		if (commandToProcess.toLowerCase() === 'clear') {
+		if (lowerCaseCommand === 'clear') {
+			console.log('[Terminal] Clear command received.');
 			addOutputLine(getCommandEchoLine(commandToProcess, $currentUser));
 			displayedLines = [...getWelcomeMessageLines()];
 			hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
@@ -131,6 +88,7 @@
 			return;
 		}
 
+		console.log('[Terminal] Processing regular command:', commandToProcess);
 		addOutputLine(getCommandEchoLine(commandToProcess, $currentUser));
 
 		const result = await processUserCommand(commandToProcess, $currentUser);
@@ -192,6 +150,13 @@
 			}
 		} else if (event.key === 'l' && event.ctrlKey) {
 			event.preventDefault();
+			console.log('[Terminal] Ctrl+L pressed.');
+			displayedLines = [...getWelcomeMessageLines()];
+			hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
+			scrollToBottom();
+		} else if (event.key === 'C' && event.shiftKey) {
+			event.preventDefault();
+			console.log('[Terminal] Shift+C pressed.');
 			displayedLines = [...getWelcomeMessageLines()];
 			hackerScreenState.set({ active: false, durationMs: 0, intervalMs: 0 });
 			scrollToBottom();
@@ -214,8 +179,6 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
 	class="flex h-screen flex-col p-4"
 	role="application"
@@ -233,7 +196,7 @@
 		{/each}
 
 		<div class="input-prompt flex items-center">
-			<span class="text-theme-prompt whitespace-nowrap">{$currentUser}&gt;&nbsp;</span>
+			<span class="text-theme-prompt whitespace-nowrap">{$currentUser}> </span>
 			<input
 				type="text"
 				bind:this={commandInputElement}
@@ -245,13 +208,14 @@
 			/>
 		</div>
 	</div>
+
+	{#if $hackerScreenState.active}
+		<HackerScreen {addOutputLine} />
+	{/if}
 </div>
 
 <style>
 	.input-prompt input:focus {
 		caret-color: currentColor;
-	}
-	.input-prompt {
-		padding-top: 0.5rem;
 	}
 </style>

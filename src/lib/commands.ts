@@ -1,14 +1,8 @@
 import { currentUser, setUsernameInStore, hackerScreenState } from './stores';
 import { get } from 'svelte/store';
 import { escapeHtml } from './utils';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { fetchModsList, type ApiResponse, type ModItem } from './api';
-
-export interface OutputLine {
-	id: number;
-	html: string;
-	isError?: boolean;
-}
+import { fetchModsList } from './api';
+import { type OutputLine, type ModItem } from './types';
 
 let nextOutputId = 0;
 
@@ -174,6 +168,9 @@ export function processUserCommand(command: string): {
 			break;
 		case 'list_mods_public':
 			asyncPromise = getModListOutput('1228', 'Public');
+			break;
+		case 'rick':
+			output.push(createOutputLine('Never gonna give you up, never gonna let you down...'));
 			break;
 		default:
 			if (command.trim() !== '') {

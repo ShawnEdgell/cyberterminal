@@ -7,6 +7,7 @@ import type { Command } from './index';
 const setuserCommand: Command = {
 	name: 'setuser',
 	description: 'Set your username.',
+	usage: 'setuser <name>',
 	execute: async (args) => {
 		const lines = [];
 		const newUsername = args.join(' ').trim();

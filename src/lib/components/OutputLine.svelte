@@ -1,9 +1,14 @@
 <script lang="ts">
-	import type { OutputLine } from '$lib/commands';
+	import type { OutputLine } from '$lib/types';
+	import { onMount } from 'svelte';
 
 	export let line: OutputLine;
 </script>
 
 <div class:text-theme-error={line.isError}>
-	{@html line.html}
+	{#if line.isTrustedHtml}
+		{@html line.html}
+	{:else}
+		{line.html}
+	{/if}
 </div>

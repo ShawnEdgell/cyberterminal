@@ -1,19 +1,4 @@
-export interface ModItem {
-	badge?: string;
-	title: string;
-	author: string;
-	workingVersion: string;
-	gameVersion: string;
-	keybind?: string;
-	features: string[];
-	note: string;
-	downloadLinks: Array<{
-		url: string;
-		label: string;
-	}>;
-}
-
-export type ApiResponse = ModItem[];
+import { type ApiResponse } from './types';
 
 const API_BASE_URL = 'https://skatebit-api.vercel.app/api/mods/';
 

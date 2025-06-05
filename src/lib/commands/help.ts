@@ -1,24 +1,36 @@
 import { createOutputLine } from './_commandUtils';
-import type { Command } from './index';
+import type { Command } from '../types';
+import { commands } from './index'; // Import the commands array
+
+const COMMAND_NAME_PADDING = 17;
 
 const helpCommand: Command = {
 	name: 'help',
 	description: 'Show this help message.',
-	execute: async (_args, _user, _fullCommand) => {
+	execute: async (_args: string[], _user: string, _fullCommand: string) => {
 		const lines = [];
 		lines.push(createOutputLine('CyberTerminal v0.0.1   - Available Commands:'));
-		lines.push(createOutputLine('   help             - Show this help message.'));
-		lines.push(createOutputLine('   clear            - Clear the terminal screen.'));
-		lines.push(createOutputLine('   setuser &lt;name&gt;   - Set your username.'));
-		lines.push(createOutputLine('   whoami           - Display current username.'));
-		lines.push(createOutputLine('   date             - Display current date and time.'));
-		lines.push(createOutputLine('   hacker_screen    - Activate random code stream.'));
-		lines.push(createOutputLine('   stop_hack        - Stop hacker screen simulation.'));
-		lines.push(createOutputLine('   list_mods_alpha  - List Alpha SkaterXL mods.'));
-		lines.push(createOutputLine('   list_mods_public - List Public SkaterXL mods.'));
-		lines.push(
-			createOutputLine('   guide_start      - Display guide: Getting Started with Modding.')
-		);
+
+		const sortedCommands = [...commands].sort((a, b) => a.name.localeCompare(b.name));
+
+		sortedCommands.forEach((cmd) => {
+			const rawCommandUsage = cmd.usage || cmd.name;
+			const paddedCommand = rawCommandUsage.padEnd(COMMAND_NAME_PADDING);
+			const htmlEncodedPaddedCommand = paddedCommand.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+			const aliasPart =
+				cmd.aliases && cmd.aliases.length > 0 ? ` (Aliases: ${cmd.aliases.join(', ')})` : '';
+
+			lines.push(
+				createOutputLine(
+					` <span class="text-theme-prompt">${htmlEncodedPaddedCommand}</span> - <span class="text-theme-alt-text">${cmd.description}${aliasPart}</span>`,
+					false, // isError
+					false, // isGameOutput
+					true // isTrustedHtml
+				)
+			);
+		});
+
 		return { lines };
 	}
 };

@@ -1,9 +1,8 @@
 // src/lib/commands/list_mods_public.ts
 import { createOutputLine, API_RESPONSE_CLASS } from './_commandUtils';
 import { fetchModsList } from '../api';
-import type { ModItem } from '../api';
+import type { ModItem, Command } from '../types';
 import { escapeHtml } from '../utils'; // Import escapeHtml from global utils
-import type { Command } from './index';
 
 const listModsPublicCommand: Command = {
 	name: 'list_mods_public',
@@ -51,7 +50,7 @@ const listModsPublicCommand: Command = {
 				if (mod.features && mod.features.length > 0) {
 					lines.push(
 						createOutputLine(
-							`  <span class="${API_RESPONSE_CLASS}">Features:</span> ${mod.features.map((f) => escapeHtml(f)).join(', ')}`
+							`  <span class="${API_RESPONSE_CLASS}">Features:</span> ${mod.features.map((f: string) => escapeHtml(f)).join(', ')}`
 						)
 					);
 				}
@@ -63,7 +62,7 @@ const listModsPublicCommand: Command = {
 				if (mod.downloadLinks && mod.downloadLinks.length > 0) {
 					lines.push(
 						createOutputLine(
-							`  <span class="${API_RESPONSE_CLASS}">Downloads:</span> ${mod.downloadLinks.map((link) => `<a href="${escapeHtml(link.url)}" target="_blank" class="underline">${escapeHtml(link.label)}</a>`).join(', ')}`
+							`  <span class="${API_RESPONSE_CLASS}">Downloads:</span> ${mod.downloadLinks.map((link: { url: string; label: string }) => `<a href="${escapeHtml(link.url)}" target="_blank" class="underline">${escapeHtml(link.label)}</a>`).join(', ')}`
 						)
 					);
 				}

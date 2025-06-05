@@ -1,5 +1,4 @@
-// src/lib/commands/index.ts
-import type { OutputLine } from '../types';
+import type { OutputLine, Command } from '../types';
 import { createOutputLine, getCommandEchoLine as _getCommandEchoLine } from './_commandUtils';
 import { escapeHtml } from '../utils';
 
@@ -13,45 +12,36 @@ import hackerScreenCommand from './hacker_screen';
 import stopHackCommand from './stop_hack';
 import listModsAlphaCommand from './list_mods_alpha';
 import listModsPublicCommand from './list_mods_public';
+import listDecalsCommand from './list_decals';
 import guideStartCommand from './guide_start';
+import rickCommand from './rick';
+import youtubeCommand from './youtube';
 
-export const getCommandEchoLine = _getCommandEchoLine; // Export for Terminal.svelte
-
-// Define the interface for a command module
-export interface Command {
-	name: string;
-	description: string;
-	aliases?: string[]; // Optional aliases for the command
-	execute: (
-		args: string[],
-		user: string,
-		fullCommand: string
-	) =>
-		| Promise<{
-				lines: OutputLine[];
-				navigationPath?: string;
-		  }>
-		| {
-				lines: OutputLine[];
-				navigationPath?: string;
-		  };
-}
+export const getCommandEchoLine = _getCommandEchoLine;
 
 // Register all commands here
-const commands: Command[] = [
+export const commands: Command[] = [
 	helpCommand,
 	clearCommand,
 	setuserCommand,
 	whoamiCommand,
 	dateCommand,
+	// Hacker Tools
 	hackerScreenCommand,
 	stopHackCommand,
+	// Mod Listing
 	listModsAlphaCommand,
 	listModsPublicCommand,
-	guideStartCommand
+	listDecalsCommand,
+	// Guides
+	guideStartCommand,
+	// Fun
+	rickCommand,
+	youtubeCommand
+	// NEW: Game Commands
+	// Add new commands here in the desired order
 ];
 
-// Map commands by their name and aliases for quick lookup
 const commandMap = new Map<string, Command>();
 commands.forEach((cmd) => {
 	commandMap.set(cmd.name.toLowerCase(), cmd);
@@ -60,14 +50,13 @@ commands.forEach((cmd) => {
 	}
 });
 
-// Centralized processing function
 export async function processUserCommand(
 	command: string,
 	currentUser: string
 ): Promise<{
 	lines: OutputLine[];
 	navigationPath?: string;
-	asyncPromise?: Promise<OutputLine[]>; // Keep this for now for async commands handled by Terminal
+	asyncPromise?: Promise<OutputLine[]>;
 }> {
 	const output: OutputLine[] = [];
 	const lowerCommand = command.toLowerCase().trim();
@@ -80,7 +69,6 @@ export async function processUserCommand(
 	if (commandModule) {
 		const rawResult = commandModule.execute(args, currentUser, command);
 
-		// FIX: Use PromiseLike<unknown> to avoid 'any'
 		if (rawResult && typeof (rawResult as PromiseLike<unknown>).then === 'function') {
 			const promiseResult = rawResult as Promise<{ lines: OutputLine[]; navigationPath?: string }>;
 			return { lines: [], asyncPromise: promiseResult.then((data) => data.lines) };
